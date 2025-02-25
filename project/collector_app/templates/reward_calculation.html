@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reward Calculation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css">
+  <style>
+      /* Button Styling */
+      #distributeRewardsBtn {
+          background-color: green;
+          color: white;
+          padding: 10px;
+          border: none;
+          cursor: pointer;
+      }
+      .date-range-picker {
+          color: blue;
+          cursor: pointer;
+      }
+      /* Flash Message Styling */
+      .flash-message {
+          padding: 10px;
+          margin: 10px auto;
+          border-radius: 5px;
+          font-weight: bold;
+          text-align: center;
+          width: 50%;
+      }
+      .flash-message.success {
+          background-color: #d4edda;
+          color: #155724;
+          border: 1px solid #c3e6cb;
+      }
+      .flash-message.error {
+          background-color: #f8d7da;
+          color: #721c24;
+          border: 1px solid #f5c6cb;
+      }
+  </style>
+</head>
+<body>
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <h1>Waste Data Entry</h1>
+  <!-- Waste Data Entry Form -->
+  <form method="POST">
+      <label for="date">Select Date:</label>
+      <input type="date" id="date" name="date" onchange="checkSunday()" required>
+      
+      <label for="food_waste">Food Waste (kg):</label>
+      <input type="number" id="food_waste" name="food_waste" step="0.1" required>
+      
+      <label for="plastic_waste">Plastic Waste (kg):</label>
+      <input type="number" id="plastic_waste" name="plastic_waste" step="0.1" required>
+      
+      <label for="paper_waste">Paper Waste (kg):</label>
+      <input type="number" id="paper_waste" name="paper_waste" step="0.1" required>
+      
+      <button type="submit" name="submit_data">Submit Data</button>
+  </form>
+
+  <!-- Enter Amount Button (Only visible on Sundays) -->
+  <button id="enterAmountBtn" style="display: none;" onclick="showAmountForm()">Enter Amount</button>
+
+  <!-- Amount Entry Form (for Waste Earnings) -->
+  <form id="amountForm" method="POST" style="display: none;">
+      <input type="hidden" id="amount_date" name="date">
+      
+      <label for="food_amount">Food Waste Amount (₹):</label>
+      <input type="number" id="food_amount" name="food_amount" step="0.1" required>
+      
+      <label for="plastic_amount">Plastic Waste Amount (₹):</label>
+      <input type="number" id="plastic_amount" name="plastic_amount" step="0.1" required>
+      
+      <label for="paper_amount">Paper Waste Amount (₹):</label>
+      <input type="number" id="paper_amount" name="paper_amount" step="0.1" required>
+      
+      <label for="weekPicker">Pick Week (for Waste Earnings):</label>
+      <input type="text" id="weekPicker" name="weekPicker" placeholder="Select Date Range" readonly>
+      
+      <button type="submit" name="submit_amounts">Submit Amounts</button>
+  </form>
+
+  <!-- Distribute Rewards Button (Only visible on Sundays) -->
+  <form id="distributeRewardsForm" method="POST">
+      <input type="hidden" id="reward_date" name="date">
+      <!-- This button simply shows the week range picker -->
+      <button type="button" id="distributeRewardsBtn" style="display: none;">Distribute Rewards</button>
+  </form>
+
+  <!-- Week Range Picker for Rewards Distribution -->
+  <div id="weekRangePicker" style="display: none;">
+      <form method="POST">
+          <!-- Hidden field to indicate rewards distribution -->
+          <input type="hidden" name="distribute_rewards" value="1">
+          <label for="weekPickerRewards">Select Week Range (for Rewards Distribution):</label>
+          <!-- Note: The name is set to "weekPicker" as expected by app.py -->
+          <input type="text" id="weekPickerRewards" name="weekPicker" placeholder="Select Date Range" readonly>
+          <button type="submit" id="giveRewardsBtn" style="display: none;">Give Rewards</button>
+      </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
+  <script>
+      function checkSunday() {
+          var dateInput = document.getElementById("date").value;
+          var date = new Date(dateInput);
+          var day = date.getDay();
+          // Show buttons only if the selected date is a Sunday (day 0)
+          if (day === 0) {
+              document.getElementById("enterAmountBtn").style.display = "block";
+              document.getElementById("distributeRewardsBtn").style.display = "block";
+          } else {
+              document.getElementById("enterAmountBtn").style.display = "none";
+              document.getElementById("amountForm").style.display = "none";
+              document.getElementById("distributeRewardsBtn").style.display = "none";
+          }
+      }
+
+      function showAmountForm() {
+          document.getElementById("amountForm").style.display = "block";
+          document.getElementById("amount_date").value = document.getElementById("date").value;
+          document.getElementById("reward_date").value = document.getElementById("date").value;
+          document.getElementById("distributeRewardsBtn").style.display = "block";
+      }
+
+      // When clicking on the Distribute Rewards button, show the week range picker for rewards distribution
+      document.getElementById("distributeRewardsBtn").addEventListener("click", function() {
+          document.getElementById("weekRangePicker").style.display = "block";
+      });
+
+      // Initialize flatpickr for the earnings form's week picker
+      flatpickr("#weekPicker", {
+          mode: "range",
+          dateFormat: "Y-m-d",
+          allowInput: false
+      });
+
+      // Initialize flatpickr for the rewards distribution week picker
+      flatpickr("#weekPickerRewards", {
+          mode: "range",
+          dateFormat: "Y-m-d",
+          onClose: function(selectedDates) {
+              if (selectedDates.length === 2) {
+                  document.getElementById("giveRewardsBtn").style.display = "block";
+              } else {
+                  document.getElementById("giveRewardsBtn").style.display = "none";
+              }
+          }
+      });
+  </script>
+</body>
+</html>
+

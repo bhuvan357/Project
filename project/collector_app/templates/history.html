@@ -1,0 +1,194 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            max-width: 500px;
+            background-color: #f9f9f9;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="date"], input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .calendar-icon {
+            cursor: pointer;
+            font-size: 20px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        .date-container {
+            position: relative;
+            width: 100%;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .menu-button {
+            font-size: 30px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .menu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .menu a {
+            color: white;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .menu a:hover {
+            background-color: #444;
+        }
+
+        .menu.active {
+            display: flex;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        td {
+            background-color: #fafafa;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data History</h1>
+
+    <!-- Hamburger Menu -->
+    <div class="menu-button" onclick="toggleMenu()">&#9776;</div>
+    <div class="menu" id="menu">
+        <a href="{{ url_for('data_entry') }}">Data Entry</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <!-- Back to Data Entry Link -->
+    <a href="{{ url_for('data_entry') }}">&larr; Back to Data Entry</a>
+
+    <!-- Date Selection Form -->
+    <form method="GET">
+        <label for="search_date">Select Date:</label>
+        <input type="date" id="search_date" name="search_date" required>
+        <span class="calendar-icon" onclick="document.getElementById('search_date').click()">📅</span>
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Data Table -->
+    <form method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Household ID</th>
+                    <th>Food Waste (kg)</th>
+                    <th>Plastic Waste (kg)</th>
+                    <th>Paper Waste (kg)</th>
+                    <th>Food Segregation</th>
+                    <th>Plastic Segregation</th>
+                    <th>Paper Segregation</th>
+                    <th>Streak</th>
+                    <th>Collector Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if history_data %}
+                    {% for row in history_data %}
+                        <tr>
+                            <td>{{ row[0][:10]|replace('-', '/') }}</td>  <!-- Convert yyyy-mm-dd to mm/dd/yyyy -->
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>{{ row[4] }}</td>
+                            <td>{{ row[5] }}</td>
+                            <td>{{ row[6] }}</td>
+                            <td>{{ row[7] }}</td>
+                            <td>{{ row[8] }}</td>
+                            <td>{{ row[9] }}</td>
+                            <td>{{ row[10] }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="11">No data available</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </body>
+    </html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <h2>Waste Collection Statistics</h2>
+
+    <!-- Single Calendar for Date & Range Selection -->
+    <label>Select Date Range: </label>
+    <input type="text" id="date_range" placeholder="YYYY-MM-DD to YYYY-MM-DD">
+
+    <!-- Colony Input Field -->
+    <label>Enter Colony Name (Leave empty for all): </label>
+    <input type="text" id="colony" placeholder="Enter colony name">
+
+    <button onclick="fetchStatistics()">Get Statistics</button>
+
+    <!-- Waste Data Display -->
+    <p><strong>Total Waste:</strong> <span id="total_waste">0</span> kg</p>
+    <p><strong>Food Waste:</strong> <span id="food_waste">0</span> kg</p>
+    <p><strong>Plastic Waste:</strong> <span id="plastic_waste">0</span> kg</p>
+    <p><strong>Paper Waste:</strong> <span id="paper_waste">0</span> kg</p>
+
+    <!-- Bar Chart -->
+    <canvas id="wasteChart"></canvas>
+
+    <script>
+        // Initialize Flatpickr for single date & range selection
+        flatpickr("#date_range", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById("wasteChart").getContext("2d");
+
+            var wasteChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: ["Food Waste", "Plastic Waste", "Paper Waste"],
+                    datasets: [{
+                        label: "Waste Collected (kg)",
+                        data: [0, 0, 0],  
+                        backgroundColor: ["green", "blue", "orange"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            window.fetchStatistics = function () {
+                var dateRange = document.getElementById("date_range").value;
+                var colony = document.getElementById("colony").value.trim();  // Get colony input
+
+                if (!dateRange) {
+                    alert("Please select a date range.");
+                    return;
+                }
+
+                var dates = dateRange.split(" to "); // Split start & end dates
+                var start_date = dates[0];
+                var end_date = dates.length > 1 ? dates[1] : start_date; // If single date, use as both start & end
+
+                fetch("/get_statistics", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ start_date: start_date, end_date: end_date, colony: colony })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("total_waste").textContent = data.total_waste;
+                    document.getElementById("food_waste").textContent = data.food_waste;
+                    document.getElementById("plastic_waste").textContent = data.plastic_waste;
+                    document.getElementById("paper_waste").textContent = data.paper_waste;
+
+                    wasteChart.data.datasets[0].data = [
+                        data.food_waste,
+                        data.plastic_waste,
+                        data.paper_waste
+                    ];
+                    wasteChart.data.datasets[0].backgroundColor = ["green", "blue", "yellow"]; // Highlight range in blue
+                    wasteChart.update();
+                })
+                .catch(error => console.error("Error fetching statistics:", error));
+            };
+        });
+    </script>
+</body>
+</html>
+

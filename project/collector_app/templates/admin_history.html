@@ -1,0 +1,42 @@
+<form method="POST">
+    <label for="date">Select Date:</label>
+    <input type="date" name="date" id="date">
+
+    <label for="collector_id">Collector ID:</label>
+    <input type="text" name="collector_id" id="collector_id" placeholder="Enter Collector ID">
+
+    <label for="colony">Colony:</label>
+    <input type="text" name="colony" id="colony" placeholder="Enter Colony Name">
+
+    <button type="submit">Filter Data</button>
+</form>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Entry Date</th>
+            <th>Day</th>
+            <th>Household ID</th>
+            <th>Food Waste</th>
+            <th>Plastic Waste</th>
+            <th>Paper Waste</th>
+            <th>Food Segregation</th>
+            <th>Plastic Segregation</th>
+            <th>Paper Segregation</th>
+            <th>Streak</th>
+            <th>Collector ID</th>
+            <th>Colony</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            {% for item in row %}
+            <td>{{ item }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+

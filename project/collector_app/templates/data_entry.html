@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Entry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            max-width: 500px;
+            background-color: #f9f9f9;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .menu-button {
+            font-size: 30px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .menu {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .menu a {
+            color: white;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .menu a:hover {
+            background-color: #444;
+        }
+
+        .menu.active {
+            display: flex;
+        }
+
+        .streak-info {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .calendar-icon {
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 20px;
+        }
+
+        @media (max-width: 600px) {
+            form {
+                width: 100%;
+            }
+
+            .menu {
+                right: 5px;
+            }
+        }
+    </style>
+    <script>
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('active');
+        }
+
+        function validateSegregationInputs() {
+            const foodSegregation = document.querySelector('[name="food_segregation"]').value;
+            const plasticSegregation = document.querySelector('[name="plastic_segregation"]').value;
+            const paperSegregation = document.querySelector('[name="paper_segregation"]').value;
+
+            if ([foodSegregation, plasticSegregation, paperSegregation].some(val => val !== "0" && val !== "1")) {
+                alert("Segregation values must be 1 (Yes) or 0 (No).");
+                return false;
+            }
+            return true;
+        }
+
+        // Opens the date picker when clicking on the calendar icon
+        function openCalendar() {
+            document.getElementById('entry_date').click();
+        }
+
+        // Updates the day dropdown when a date is selected
+        function updateDayFromDate() {
+            const dateInput = document.getElementById("entry_date").value;
+            if (dateInput) {
+                const selectedDate = new Date(dateInput);
+                const dayIndex = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+                const dayDropdown = document.getElementById("day");
+
+                // Map JavaScript day index to our dropdown values (1 = Monday, 7 = Sunday)
+                const dayMap = [7, 1, 2, 3, 4, 5, 6]; // Adjust to match our convention
+                dayDropdown.value = dayMap[dayIndex];
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Data Entry</h1>
+
+    <!-- Hamburger Menu -->
+    <div class="menu-button" onclick="toggleMenu()">&#9776;</div>
+    <div class="menu" id="menu">
+        <a href="{{ url_for('data_entry') }}">Data Entry</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <!-- Current Streak Info -->
+    {% if session['user_id'] %}
+    <div class="streak-info">
+        Logged in as: <strong>{{ session['name'] }}</strong> | User ID: <strong>{{ session['user_id'] }}</strong>
+    </div>
+    {% endif %}
+
+    <!-- Data Entry Form -->
+    <form method="POST" onsubmit="return validateSegregationInputs()">
+        <label for="entry_date">Select Date:</label>
+        <input type="date" id="entry_date" name="entry_date" required onchange="updateDayFromDate()">
+        <span class="calendar-icon" onclick="openCalendar()">📅</span>
+        
+        <!-- Day Dropdown -->
+        <label for="day">Select Day:</label>
+        <select id="day" name="day" required>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
+            <option value="7">Sunday</option>
+        </select>
+
+        <label for="household_id">Household ID:</label>
+        <input type="text" name="household_id" required>
+
+        <label for="food_waste">Food Waste (kg):</label>
+        <input type="number" name="food_waste" step="0.1" required>
+
+        <label for="plastic_waste">Plastic Waste (kg):</label>
+        <input type="number" name="plastic_waste" step="0.1" required>
+
+        <label for="paper_waste">Paper Waste (kg):</label>
+        <input type="number" name="paper_waste" step="0.1" required>
+
+        <label for="food_segregation">Food Segregation (1 for Yes, 0 for No):</label>
+        <input type="number" name="food_segregation" min="0" max="1" required>
+
+        <label for="plastic_segregation">Plastic Segregation (1 for Yes, 0 for No):</label>
+        <input type="number" name="plastic_segregation" min="0" max="1" required>
+
+        <label for="paper_segregation">Paper Segregation (1 for Yes, 0 for No):</label>
+        <input type="number" name="paper_segregation" min="0" max="1" required>
+
+        <!-- New field for Colony Name -->
+        <label for="colony">Colony Name:</label>
+        <input type="text" name="colony" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
+
+
+

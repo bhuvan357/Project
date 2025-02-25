@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Collection History</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        .search-box {
+            margin-bottom: 15px;
+        }
+        .search-box input, .search-box button {
+            padding: 10px;
+            font-size: 16px;
+        }
+        .streak {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📅 Waste Collection History</h2>
+    <p>This is where customers can view their waste collection history.</p>
+
+    <!-- Search Box -->
+    <div class="search-box">
+        <form method="GET">
+            <label for="search_date">Select Date:</label>
+            <input type="date" id="search_date" name="search_date" value="{{ request.args.get('search_date', '') }}">
+            <button type="submit">🔍 Search</button>
+        </form>
+    </div>
+
+    <!-- Data Table -->
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Day</th>
+            <th>Household ID</th>
+            <th>Food Waste (kg)</th>
+            <th>Plastic Waste (kg)</th>
+            <th>Paper Waste (kg)</th>
+            <th>Food Segregation</th>
+            <th>Plastic Segregation</th>
+            <th>Paper Segregation</th>
+            <th>Streak</th>
+            <th>Collector Name</th>
+            <th>Colony</th>
+        </tr>
+        {% for row in history_data %}
+        <tr>
+            <td>{{ row[0][5:7] }}/{{ row[0][8:10] }}/{{ row[0][:4] }}</td> <!-- Date -->
+            <td>{{ row[1] }}</td>  <!-- Day -->
+            <td>{{ row[2] }}</td>  <!-- Household ID -->
+            <td>{{ row[3] }} kg</td>  <!-- Food Waste -->
+            <td>{{ row[4] }} kg</td>  <!-- Plastic Waste -->
+            <td>{{ row[5] }} kg</td>  <!-- Paper Waste -->
+            <td>{{ row[6] }}</td>  <!-- Food Segregation -->
+            <td>{{ row[7] }}</td>  <!-- Plastic Segregation -->
+            <td>{{ row[8] }}</td>  <!-- Paper Segregation -->
+            <td class="streak">
+                {{ row[9] }} {% if row[9] > 0 %} 🔥{% endif %}
+            </td>  <!-- Streak with Fire Icon -->
+            <td>{{ row[10] }}</td>  <!-- Collector Name -->
+            <td>{{ row[11] }}</td>  <!-- Colony -->
+        </tr>
+        {% endfor %}
+    </table>   
+</div>
+
+</body>
+</html>
+

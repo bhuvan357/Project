@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        /* Sidebar CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            background-color: #333;
+            color: white;
+            transition: 0.3s;
+            padding-top: 60px;
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .sidebar .close-btn {
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+        }
+        .open-btn {
+            font-size: 30px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border: none;
+            position: absolute;
+            top: 20px;
+            left: 10px;
+        }
+        .container {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        .stats-btn, .waste-btn {
+            display: block;
+            width: 200px;
+            height: 50px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            font-size: 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+        .stats-btn:hover, .waste-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <button class="open-btn" onclick="toggleSidebar()">&#9776;</button>
+    <div class="sidebar" id="sidebar">
+        <span class="close-btn" onclick="toggleSidebar()">&times;</span>
+        <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('verification') }}">Verification</a>
+        <a href="{{ url_for('admin_history') }}">Collector History</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <div class="container">
+        <h1>Hello Admin</h1>
+        <p>Welcome to the admin dashboard. Use the sidebar to navigate.</p>
+        <a href="{{ url_for('admin_statistics') }}" class="stats-btn">Statistics</a>
+        
+        <!-- Button for Waste Data Entry, now redirects to reward_calculation.html -->
+        <a href="{{ url_for('reward') }}" class="waste-btn">Waste Data Entry</a>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById("sidebar");
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px";
+            } else {
+                sidebar.style.left = "0px";
+            }
+        }
+    </script>
+</body>
+</html>
+
